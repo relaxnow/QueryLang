@@ -1,0 +1,28 @@
+{
+    "name":         "QueryLang",
+    "description":  "QueryLang demonstration language for DPC12",
+    "keywords":     ["DPC", "DPC12", "DSL", "language", "query"],
+    "homepage":     "https://github.com/relaxnow",
+    "type":         "library",
+    "license":      "MIT",
+    "authors":      [
+        {
+            "name":      "Boy Baukema",
+            "email":     "boy@ibuildings.nl",
+            "homepage":  "http://blog.relaxnow.nl"
+        }
+    ],
+    "require": {
+        "php":             ">=5.3.1",
+        "hafriedlander/php-peg":         ">=1.0.0"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/relaxnow/php-peg"
+        }
+    ],
+    "config": {
+        "bin-dir": "bin/"
+    }
+}
