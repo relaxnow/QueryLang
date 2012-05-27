@@ -24,5 +24,8 @@
     ],
     "config": {
         "bin-dir": "bin/"
+    },
+    "autoload": {
+        "psr-0": {"QueryLang": "src/"}
     }
 }
