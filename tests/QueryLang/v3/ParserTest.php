@@ -8,14 +8,6 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 {
     const PARSER_CLASS = '\QueryLang\v3\Parser';
 
-    public function testNoQuery()
-    {
-        $parserClass = static::PARSER_CLASS;
-        $parser = new $parserClass('');
-        $query = $parser->parse();
-        $this->assertEquals(new \QueryLang\v3\Node\Query(), $query);
-    }
-
     public function testParseSingleWord()
     {
         $parserClass = static::PARSER_CLASS;
@@ -53,11 +45,6 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $parser = new $parserClass($explicitPrecedenceQuery);
         $expectedQuery = $parser->parse();
 
-        echo 'Query: ' . $implicitPrecedenceQuery . PHP_EOL;
-        echo "Expected:" . PHP_EOL;
-        var_dump($expectedQuery);
-        echo "Actual:" . PHP_EOL;
-        var_dump($query);
         $this->assertEquals($expectedQuery, $query, $implicitPrecedenceQuery . '===' . $explicitPrecedenceQuery);
 
         $implicitPrecedenceQuery = 'a AND b OR c';
@@ -66,29 +53,9 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $parser = new $parserClass($implicitPrecedenceQuery);
         $query = $parser->parse();
 
-        echo "=================================" . PHP_EOL;
-        echo "=============EXPLICIT============" . PHP_EOL;
-        echo "=================================" . PHP_EOL;
         $parser = new $parserClass($explicitPrecedenceQuery);
         $expectedQuery = $parser->parse();
 
         $this->assertEquals($expectedQuery, $query, $implicitPrecedenceQuery . '===' . $explicitPrecedenceQuery);
-    }
-
-    public function testSubQueries()
-    {
-        $query = 'a OR (b AND c OR (e AND (f)))';
-
-        $parserClass = static::PARSER_CLASS;
-        $parser = new $parserClass($query);
-        $query = $parser->parse();
-
-        $expectedQuery = new \QueryLang\v3\Node\Query();
-        $expectedQuery->addTerm(new \QueryLang\v3\Node\Term('a'));
-//        $expectedQuery->addSubQuery()
-    }
-
-    public function testEmpty()
-    {
     }
 }
