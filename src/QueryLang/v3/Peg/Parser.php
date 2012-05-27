@@ -2,105 +2,164 @@
 
 namespace QueryLang\v3\Peg;
 
-require __DIR__ . '/../Node/Query.php';
-require __DIR__ . '/../Node/Term.php';
-require __DIR__ . '/../../../../vendor/hafriedlander/php-peg/Parser.php';
+require_once __DIR__ . '/../Node/Query.php';
+require_once __DIR__ . '/../Node/Term.php';
+require_once __DIR__ . '/../../../../vendor/hafriedlander/php-peg/Parser.php';
 
-class QueryLangV3 extends \Parser {
-    /* Query: Term > Query* */
+class Parser extends \Parser {
+    /* Query: OrQuery */
     protected $match_Query_typestack = array('Query');
     function match_Query ($stack = array()) {
     	$matchrule = "Query"; $result = $this->construct($matchrule, $matchrule, null);
-    	$_3 = NULL;
+    	$matcher = 'match_'.'OrQuery'; $key = $matcher; $pos = $this->pos;
+    	$subres = ( $this->packhas( $key, $pos ) ? $this->packread( $key, $pos ) : $this->packwrite( $key, $pos, $this->$matcher(array_merge($stack, array($result))) ) );
+    	if ($subres !== FALSE) {
+    		$this->store( $result, $subres );
+    		return $this->finalise($result);
+    	}
+    	else { return FALSE; }
+    }
+
+
+    /* OrQuery: AndQuery ([ "OR" ] AndQuery)* */
+    protected $match_OrQuery_typestack = array('OrQuery');
+    function match_OrQuery ($stack = array()) {
+    	$matchrule = "OrQuery"; $result = $this->construct($matchrule, $matchrule, null);
+    	$_8 = NULL;
+    	do {
+    		$matcher = 'match_'.'AndQuery'; $key = $matcher; $pos = $this->pos;
+    		$subres = ( $this->packhas( $key, $pos ) ? $this->packread( $key, $pos ) : $this->packwrite( $key, $pos, $this->$matcher(array_merge($stack, array($result))) ) );
+    		if ($subres !== FALSE) {
+    			$this->store( $result, $subres );
+    		}
+    		else { $_8 = FALSE; break; }
+    		while (true) {
+    			$res_7 = $result;
+    			$pos_7 = $this->pos;
+    			$_6 = NULL;
+    			do {
+    				if (( $subres = $this->whitespace(  ) ) !== FALSE) { $result["text"] .= $subres; }
+    				else { $_6 = FALSE; break; }
+    				if (( $subres = $this->literal( 'OR' ) ) !== FALSE) { $result["text"] .= $subres; }
+    				else { $_6 = FALSE; break; }
+    				if (( $subres = $this->whitespace(  ) ) !== FALSE) { $result["text"] .= $subres; }
+    				else { $_6 = FALSE; break; }
+    				$matcher = 'match_'.'AndQuery'; $key = $matcher; $pos = $this->pos;
+    				$subres = ( $this->packhas( $key, $pos ) ? $this->packread( $key, $pos ) : $this->packwrite( $key, $pos, $this->$matcher(array_merge($stack, array($result))) ) );
+    				if ($subres !== FALSE) {
+    					$this->store( $result, $subres );
+    				}
+    				else { $_6 = FALSE; break; }
+    				$_6 = TRUE; break;
+    			}
+    			while(0);
+    			if( $_6 === FALSE) {
+    				$result = $res_7;
+    				$this->pos = $pos_7;
+    				unset( $res_7 );
+    				unset( $pos_7 );
+    				break;
+    			}
+    		}
+    		$_8 = TRUE; break;
+    	}
+    	while(0);
+    	if( $_8 === TRUE ) { return $this->finalise($result); }
+    	if( $_8 === FALSE) { return FALSE; }
+    }
+
+
+    /* AndQuery: Term ([ "AND" ] Term)* */
+    protected $match_AndQuery_typestack = array('AndQuery');
+    function match_AndQuery ($stack = array()) {
+    	$matchrule = "AndQuery"; $result = $this->construct($matchrule, $matchrule, null);
+    	$_17 = NULL;
     	do {
     		$matcher = 'match_'.'Term'; $key = $matcher; $pos = $this->pos;
     		$subres = ( $this->packhas( $key, $pos ) ? $this->packread( $key, $pos ) : $this->packwrite( $key, $pos, $this->$matcher(array_merge($stack, array($result))) ) );
     		if ($subres !== FALSE) {
     			$this->store( $result, $subres );
     		}
-    		else { $_3 = FALSE; break; }
-    		if (( $subres = $this->whitespace(  ) ) !== FALSE) { $result["text"] .= $subres; }
+    		else { $_17 = FALSE; break; }
     		while (true) {
-    			$res_2 = $result;
-    			$pos_2 = $this->pos;
+    			$res_16 = $result;
+    			$pos_16 = $this->pos;
+    			$_15 = NULL;
+    			do {
+    				if (( $subres = $this->whitespace(  ) ) !== FALSE) { $result["text"] .= $subres; }
+    				else { $_15 = FALSE; break; }
+    				if (( $subres = $this->literal( 'AND' ) ) !== FALSE) { $result["text"] .= $subres; }
+    				else { $_15 = FALSE; break; }
+    				if (( $subres = $this->whitespace(  ) ) !== FALSE) { $result["text"] .= $subres; }
+    				else { $_15 = FALSE; break; }
+    				$matcher = 'match_'.'Term'; $key = $matcher; $pos = $this->pos;
+    				$subres = ( $this->packhas( $key, $pos ) ? $this->packread( $key, $pos ) : $this->packwrite( $key, $pos, $this->$matcher(array_merge($stack, array($result))) ) );
+    				if ($subres !== FALSE) {
+    					$this->store( $result, $subres );
+    				}
+    				else { $_15 = FALSE; break; }
+    				$_15 = TRUE; break;
+    			}
+    			while(0);
+    			if( $_15 === FALSE) {
+    				$result = $res_16;
+    				$this->pos = $pos_16;
+    				unset( $res_16 );
+    				unset( $pos_16 );
+    				break;
+    			}
+    		}
+    		$_17 = TRUE; break;
+    	}
+    	while(0);
+    	if( $_17 === TRUE ) { return $this->finalise($result); }
+    	if( $_17 === FALSE) { return FALSE; }
+    }
+
+
+    /* Term: "(" Query ")" | /[\w\d]+/ */
+    protected $match_Term_typestack = array('Term');
+    function match_Term ($stack = array()) {
+    	$matchrule = "Term"; $result = $this->construct($matchrule, $matchrule, null);
+    	$_26 = NULL;
+    	do {
+    		$res_19 = $result;
+    		$pos_19 = $this->pos;
+    		$_23 = NULL;
+    		do {
+    			if (substr($this->string,$this->pos,1) == '(') {
+    				$this->pos += 1;
+    				$result["text"] .= '(';
+    			}
+    			else { $_23 = FALSE; break; }
     			$matcher = 'match_'.'Query'; $key = $matcher; $pos = $this->pos;
     			$subres = ( $this->packhas( $key, $pos ) ? $this->packread( $key, $pos ) : $this->packwrite( $key, $pos, $this->$matcher(array_merge($stack, array($result))) ) );
     			if ($subres !== FALSE) {
     				$this->store( $result, $subres );
     			}
-    			else {
-    				$result = $res_2;
-    				$this->pos = $pos_2;
-    				unset( $res_2 );
-    				unset( $pos_2 );
-    				break;
+    			else { $_23 = FALSE; break; }
+    			if (substr($this->string,$this->pos,1) == ')') {
+    				$this->pos += 1;
+    				$result["text"] .= ')';
     			}
+    			else { $_23 = FALSE; break; }
+    			$_23 = TRUE; break;
     		}
-    		$_3 = TRUE; break;
+    		while(0);
+    		if( $_23 === TRUE ) { $_26 = TRUE; break; }
+    		$result = $res_19;
+    		$this->pos = $pos_19;
+    		if (( $subres = $this->rx( '/[\w\d]+/' ) ) !== FALSE) {
+    			$result["text"] .= $subres;
+    			$_26 = TRUE; break;
+    		}
+    		$result = $res_19;
+    		$this->pos = $pos_19;
+    		$_26 = FALSE; break;
     	}
     	while(0);
-    	if( $_3 === TRUE ) { return $this->finalise($result); }
-    	if( $_3 === FALSE) { return FALSE; }
-    }
-
-
-    /* Term: Modifier* TermValue */
-    protected $match_Term_typestack = array('Term');
-    function match_Term ($stack = array()) {
-    	$matchrule = "Term"; $result = $this->construct($matchrule, $matchrule, null);
-    	$_7 = NULL;
-    	do {
-    		while (true) {
-    			$res_5 = $result;
-    			$pos_5 = $this->pos;
-    			$matcher = 'match_'.'Modifier'; $key = $matcher; $pos = $this->pos;
-    			$subres = ( $this->packhas( $key, $pos ) ? $this->packread( $key, $pos ) : $this->packwrite( $key, $pos, $this->$matcher(array_merge($stack, array($result))) ) );
-    			if ($subres !== FALSE) {
-    				$this->store( $result, $subres );
-    			}
-    			else {
-    				$result = $res_5;
-    				$this->pos = $pos_5;
-    				unset( $res_5 );
-    				unset( $pos_5 );
-    				break;
-    			}
-    		}
-    		$matcher = 'match_'.'TermValue'; $key = $matcher; $pos = $this->pos;
-    		$subres = ( $this->packhas( $key, $pos ) ? $this->packread( $key, $pos ) : $this->packwrite( $key, $pos, $this->$matcher(array_merge($stack, array($result))) ) );
-    		if ($subres !== FALSE) {
-    			$this->store( $result, $subres );
-    		}
-    		else { $_7 = FALSE; break; }
-    		$_7 = TRUE; break;
-    	}
-    	while(0);
-    	if( $_7 === TRUE ) { return $this->finalise($result); }
-    	if( $_7 === FALSE) { return FALSE; }
-    }
-
-
-    /* Modifier: /[+-]/ */
-    protected $match_Modifier_typestack = array('Modifier');
-    function match_Modifier ($stack = array()) {
-    	$matchrule = "Modifier"; $result = $this->construct($matchrule, $matchrule, null);
-    	if (( $subres = $this->rx( '/[+-]/' ) ) !== FALSE) {
-    		$result["text"] .= $subres;
-    		return $this->finalise($result);
-    	}
-    	else { return FALSE; }
-    }
-
-
-    /* TermValue: /[\w\d]+/ */
-    protected $match_TermValue_typestack = array('TermValue');
-    function match_TermValue ($stack = array()) {
-    	$matchrule = "TermValue"; $result = $this->construct($matchrule, $matchrule, null);
-    	if (( $subres = $this->rx( '/[\w\d]+/' ) ) !== FALSE) {
-    		$result["text"] .= $subres;
-    		return $this->finalise($result);
-    	}
-    	else { return FALSE; }
+    	if( $_26 === TRUE ) { return $this->finalise($result); }
+    	if( $_26 === FALSE) { return FALSE; }
     }
 
 
@@ -113,29 +172,70 @@ class QueryLangV3 extends \Parser {
 
     public function parse()
     {
-        $this->_query = new \QueryLang\v3\Node\Query();
-
-        $this->match_Query();
-
-        return $this->_query;
+        $node = $this->match_Query();
+        return $node['query'];
     }
 
-    public function Query_Term(&$result, $sub)
+    public function Query__construct(&$result)
     {
-        $term = new \QueryLang\v3\Node\Term($sub['value']);
-        if (isset($sub['modifier'])) {
-            $term->setModifier($sub['modifier']);
+        $result['query'] = new \QueryLang\v3\Node\Query();
+        var_dump(__METHOD__); var_dump(func_get_args());
+    }
+
+    public function Query_OrQuery(&$result, $sub)
+    {
+        var_dump(__METHOD__); var_dump(func_get_args());
+        $result['query']->addSubQuery($sub['query']);
+    }
+
+    public function OrQuery__construct(&$result)
+    {
+        $result['query'] = new \QueryLang\v3\Node\Query();
+        var_dump(__METHOD__); var_dump(func_get_args());
+    }
+
+    public function OrQuery_AndQuery(&$result, $sub)
+    {
+        if (isset($sub['query'])) {
+            $result['query']->addSubQuery($sub['query']);
         }
-        $this->_query->addTerm($term);
+        else if (isset($sub['firstTerm'])) {
+            $result['query']->addTerm($sub['firstTerm']);
+            unset($sub['firstTerm']);
+        }
+        var_dump(__METHOD__); var_dump(func_get_args());
     }
 
-    public function Term_TermValue(&$result, $sub)
+    public function AndQuery_Term(&$result, $sub)
     {
-        $result['value'] = $sub['text'];
+        $term = new \QueryLang\v3\Node\Term($sub['text']);
+        if (isset($result['query'])) {
+            $result['query']->addTerm($term);
+        }
+        // Second term, we can be sure this is a subquery now, so create it...
+        else if (isset($result['firstTerm'])) {
+            $query = new \QueryLang\v3\Node\Query('AND');
+            $query->addTerm($result['firstTerm']);
+            $query->addTerm($term);
+            $result['query'] = $query;
+        }
+        // May contain a subquery
+        else if (isset($sub['query'])) {
+            $query = new \QueryLang\v3\Node\Query('AND');
+            $query->addSubQuery($sub['query']);
+            $result['query'];
+        }
+        // May just be a single term...
+        else {
+            $result['firstTerm'] = $term;
+        }
+
+        var_dump(__METHOD__); var_dump(func_get_args());
     }
 
-    public function Term_Modifier(&$result, $sub)
+    public function Term_Query(&$result, $sub)
     {
-        $result['modifier'] = $sub['text'];
+        $result['query'] = $sub['query'];
+        var_dump(__METHOD__); var_dump(func_get_args());
     }
 }

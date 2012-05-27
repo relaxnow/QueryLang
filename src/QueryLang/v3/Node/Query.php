@@ -4,15 +4,29 @@ namespace QueryLang\v3\Node;
 
 class Query
 {
-    protected $_terms = array();
+    private $_operator;
+    private $_terms = array();
+    private $_subQueries = array();
+
+    public function __construct($operator = 'OR')
+    {
+        $this->_operator = $operator;
+    }
+
+    public function getOperator()
+    {
+        return $this->_operator;
+    }
 
     public function addTerm(Term $term)
     {
         $this->_terms[] = $term;
+        return $term;
     }
 
-    public function getTerms()
+    public function addSubQuery(Query $query)
     {
-        return $this->_terms;
+        $this->_subQueries[] = $query;
+        return $query;
     }
 }

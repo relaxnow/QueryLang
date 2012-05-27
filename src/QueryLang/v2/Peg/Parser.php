@@ -1,44 +1,38 @@
 <?php
 
-namespace QueryLang\v1\Peg;
+namespace QueryLang\v2\Peg;
 
-require __DIR__ . '/../../../../vendor/hafriedlander/php-peg/Parser.php';
+require_once __DIR__ . '/../../../../vendor/hafriedlander/php-peg/Parser.php';
 
-class QueryLangV2 extends \Parser {
-    /* Query: Term > Query* */
+class Parser extends \Parser {
+    /* Query: (Term >)* */
     protected $match_Query_typestack = array('Query');
     function match_Query ($stack = array()) {
     	$matchrule = "Query"; $result = $this->construct($matchrule, $matchrule, null);
-    	$_3 = NULL;
-    	do {
-    		$matcher = 'match_'.'Term'; $key = $matcher; $pos = $this->pos;
-    		$subres = ( $this->packhas( $key, $pos ) ? $this->packread( $key, $pos ) : $this->packwrite( $key, $pos, $this->$matcher(array_merge($stack, array($result))) ) );
-    		if ($subres !== FALSE) {
-    			$this->store( $result, $subres );
-    		}
-    		else { $_3 = FALSE; break; }
-    		if (( $subres = $this->whitespace(  ) ) !== FALSE) { $result["text"] .= $subres; }
-    		while (true) {
-    			$res_2 = $result;
-    			$pos_2 = $this->pos;
-    			$matcher = 'match_'.'Query'; $key = $matcher; $pos = $this->pos;
+    	while (true) {
+    		$res_3 = $result;
+    		$pos_3 = $this->pos;
+    		$_2 = NULL;
+    		do {
+    			$matcher = 'match_'.'Term'; $key = $matcher; $pos = $this->pos;
     			$subres = ( $this->packhas( $key, $pos ) ? $this->packread( $key, $pos ) : $this->packwrite( $key, $pos, $this->$matcher(array_merge($stack, array($result))) ) );
     			if ($subres !== FALSE) {
     				$this->store( $result, $subres );
     			}
-    			else {
-    				$result = $res_2;
-    				$this->pos = $pos_2;
-    				unset( $res_2 );
-    				unset( $pos_2 );
-    				break;
-    			}
+    			else { $_2 = FALSE; break; }
+    			if (( $subres = $this->whitespace(  ) ) !== FALSE) { $result["text"] .= $subres; }
+    			$_2 = TRUE; break;
     		}
-    		$_3 = TRUE; break;
+    		while(0);
+    		if( $_2 === FALSE) {
+    			$result = $res_3;
+    			$this->pos = $pos_3;
+    			unset( $res_3 );
+    			unset( $pos_3 );
+    			break;
+    		}
     	}
-    	while(0);
-    	if( $_3 === TRUE ) { return $this->finalise($result); }
-    	if( $_3 === FALSE) { return FALSE; }
+    	return $this->finalise($result);
     }
 
 
@@ -69,6 +63,3 @@ class QueryLangV2 extends \Parser {
         $this->_terms[] = $sub['text'];
     }
 }
-
-$parser = new QueryLangV2('slipping angels devils');
-var_dump($parser->parse());

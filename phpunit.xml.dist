@@ -9,7 +9,7 @@
          processIsolation="false"
          stopOnFailure="false"
          syntaxCheck="false"
-         bootstrap="preload.php"
+         bootstrap="tests/bootstrap.php"
         >
     <testsuites>
         <testsuite name="QueryLang test suite">

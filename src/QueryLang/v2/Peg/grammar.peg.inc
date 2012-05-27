@@ -2,12 +2,12 @@
 
 namespace QueryLang\v2\Peg;
 
-require __DIR__ . '/../../../../vendor/hafriedlander/php-peg/Parser.php';
+require_once __DIR__ . '/../../../../vendor/hafriedlander/php-peg/Parser.php';
 
-class QueryLangV2 extends \Parser {
+class Parser extends \Parser {
     /*!* QueryLangV2
 
-    Query: Term > Query*
+    Query: (Term >)*
     Term: /[\w\d]+/
 
     */
@@ -25,6 +25,3 @@ class QueryLangV2 extends \Parser {
         $this->_terms[] = $sub['text'];
     }
 }
-
-$parser = new QueryLangV2('slipping angels devils');
-var_dump($parser->parse());

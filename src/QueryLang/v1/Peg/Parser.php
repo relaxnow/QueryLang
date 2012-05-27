@@ -2,9 +2,9 @@
 
 namespace QueryLang\v1\Peg;
 
-require __DIR__ . '/../../../../vendor/hafriedlander/php-peg/Parser.php';
+require_once __DIR__ . '/../../../../vendor/hafriedlander/php-peg/Parser.php';
 
-class QueryLangV1 extends \Parser {
+class Parser extends \Parser {
 
     /* Term: /[\w\d]+/ */
     protected $match_Term_typestack = array('Term');
@@ -19,7 +19,13 @@ class QueryLangV1 extends \Parser {
 
 
 
-}
 
-$parser = new QueryLangV1('slipping');
-var_dump($parser->match_Term());
+    public function parse()
+    {
+        $match = $this->match_Term();
+        if (!$match) {
+            return '';
+        }
+        return $match['text'];
+    }
+}

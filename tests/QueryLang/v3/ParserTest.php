@@ -6,21 +6,86 @@ use QueryLang\v3;
 
 class ParserTest extends \PHPUnit_Framework_TestCase
 {
-    public function testModifiers()
+    const PARSER_CLASS = '\QueryLang\v3\Parser';
+
+    public function testNoQuery()
     {
-        $parser = new \QueryLang\v3\Parser('c +programming');
+        $parserClass = static::PARSER_CLASS;
+        $parser = new $parserClass('');
+        $query = $parser->parse();
+        $this->assertEquals(new \QueryLang\v3\Node\Query(), $query);
+    }
+
+    public function testParseSingleWord()
+    {
+        $parserClass = static::PARSER_CLASS;
+        $parser = new $parserClass('parser');
         $query = $parser->parse();
 
         $expectedQuery = new \QueryLang\v3\Node\Query();
-
-        $firstTerm = new \QueryLang\v3\Node\Term('c');
-        $expectedQuery->addTerm($firstTerm);
-
-        $secondTerm = new \QueryLang\v3\Node\Term('programming');
-        $secondTerm->setModifier('+');
-        $expectedQuery->addTerm($secondTerm);
-
+        $expectedQuery->addTerm(new \QueryLang\v3\Node\Term('parser'));
         $this->assertEquals($expectedQuery, $query);
+    }
+
+    public function testMultiTerm()
+    {
+        $parserClass = static::PARSER_CLASS;
+        $parser = new $parserClass('parser OR mult1 OR word');
+        $query = $parser->parse();
+
+        $expectedQuery = new \QueryLang\v3\Node\Query();
+        $expectedQuery->addTerm(new \QueryLang\v3\Node\Term('parser'));
+        $expectedQuery->addTerm(new \QueryLang\v3\Node\Term('mult1'));
+        $expectedQuery->addTerm(new \QueryLang\v3\Node\Term('word'));
+        $this->assertEquals($expectedQuery, $query, 'Parser knows to parse multiple terms');
+    }
+
+    public function testPrecedence()
+    {
+        $parserClass = static::PARSER_CLASS;
+
+        $implicitPrecedenceQuery = 'c OR a AND b';
+        $explicitPrecedenceQuery = 'c OR (a AND b)';
+
+        $parser = new $parserClass($implicitPrecedenceQuery);
+        $query = $parser->parse();
+
+        $parser = new $parserClass($explicitPrecedenceQuery);
+        $expectedQuery = $parser->parse();
+
+        echo 'Query: ' . $implicitPrecedenceQuery . PHP_EOL;
+        echo "Expected:" . PHP_EOL;
+        var_dump($expectedQuery);
+        echo "Actual:" . PHP_EOL;
+        var_dump($query);
+        $this->assertEquals($expectedQuery, $query, $implicitPrecedenceQuery . '===' . $explicitPrecedenceQuery);
+
+        $implicitPrecedenceQuery = 'a AND b OR c';
+        $explicitPrecedenceQuery = '(a AND b) OR c';
+
+        $parser = new $parserClass($implicitPrecedenceQuery);
+        $query = $parser->parse();
+
+        echo "=================================" . PHP_EOL;
+        echo "=============EXPLICIT============" . PHP_EOL;
+        echo "=================================" . PHP_EOL;
+        $parser = new $parserClass($explicitPrecedenceQuery);
+        $expectedQuery = $parser->parse();
+
+        $this->assertEquals($expectedQuery, $query, $implicitPrecedenceQuery . '===' . $explicitPrecedenceQuery);
+    }
+
+    public function testSubQueries()
+    {
+        $query = 'a OR (b AND c OR (e AND (f)))';
+
+        $parserClass = static::PARSER_CLASS;
+        $parser = new $parserClass($query);
+        $query = $parser->parse();
+
+        $expectedQuery = new \QueryLang\v3\Node\Query();
+        $expectedQuery->addTerm(new \QueryLang\v3\Node\Term('a'));
+//        $expectedQuery->addSubQuery()
     }
 
     public function testEmpty()
