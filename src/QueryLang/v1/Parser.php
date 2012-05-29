@@ -4,38 +4,44 @@ namespace QueryLang\v1;
 
 class Parser
 {
-    private $_string;
+    private $_input;
 
     public function __construct($string)
     {
-        $this->_string = $string;
+        $this->_input = $string;
     }
 
     public function parse()
     {
-        // Match a term
-        $token = $this->_match('[\w\d]+');
-
-        // Anything left after matching?
-        if (!empty($this->_string)) {
-            throw new SyntaxException('Unrecognized input: ' . $this->_string);
+        if ($this->_predict('[\w\d]+')) {
+            return $this->_term();
         }
-
-        return $token;
-    }
-
-    protected function _match($regex)
-    {
-        $matches = array();
-        $matched = preg_match("/^$regex/", $this->_string, $matches);
-        if (!$matched) {
+        else {
             return '';
         }
-        $token = $matches[0];
+    }
 
-        // consume the token from the input
-        $this->_string = substr($this->_string, strlen($token));
+    protected function _term()
+    {
+        return $this->_accept('[\w\d]+');
+    }
 
-        return $token;
+    protected function _accept($regex)
+    {
+        $matches = array();
+        $matched = preg_match("/^$regex/", $this->_input, $matches);
+        if (!$matched) {
+            throw new SyntaxException("Expecting $regex in input: {$this->_input}");
+        }
+        $value = $matches[0];
+
+        $this->_input = substr($this->_input, strlen($value));
+
+        return $value;
+    }
+
+    protected function _predict($regex)
+    {
+        return preg_match("/^$regex/", $this->_input) > 0;
     }
 }
