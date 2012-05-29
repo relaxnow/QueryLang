@@ -20,7 +20,7 @@ class Parser
     {
         $query = new \QueryLang\v2\Node\Query();
         $query->addTerm($this->_term());
-        while (preg_match('/\s+/', $this->_input[0])) {
+        while ($this->_predict('\s+')) {
             $this->_accept('\s+');
             $query->addTerm($this->_term());
         }
@@ -36,7 +36,7 @@ class Parser
     protected function _accept($regex)
     {
         $matches = array();
-        $matched = preg_match("/$regex/", $this->_input, $matches);
+        $matched = preg_match("/^$regex/", $this->_input, $matches);
         if (!$matched) {
             throw new SyntaxException(
                 "Token not found! Require token $regex in remaining input: {$this->_input}"
@@ -48,5 +48,10 @@ class Parser
         $this->_input = substr($this->_input, strlen($value));
 
         return $value;
+    }
+
+    protected function _predict($regex)
+    {
+        return preg_match("/^$regex/", $this->_input) > 0;
     }
 }

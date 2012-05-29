@@ -22,15 +22,13 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     {
         $parserClass = static::PARSER_CLASS;
         $parser = new $parserClass('parser mult1 word');
+        $query = $parser->parse();
 
         $expectedQuery = new \QueryLang\v2\Node\Query();
         $expectedQuery->addTerm(new \QueryLang\v2\Node\Term('parser'));
         $expectedQuery->addTerm(new \QueryLang\v2\Node\Term('mult1'));
         $expectedQuery->addTerm(new \QueryLang\v2\Node\Term('word'));
 
-        $query = $parser->parse();
-        var_dump($expectedQuery);
-        var_dump($query);
         $this->assertEquals($expectedQuery, $query, 'Parsing multiple words');
 
     }
