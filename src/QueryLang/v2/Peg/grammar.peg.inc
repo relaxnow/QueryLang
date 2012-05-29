@@ -7,21 +7,25 @@ require_once __DIR__ . '/../../../../vendor/hafriedlander/php-peg/Parser.php';
 class Parser extends \Parser {
     /*!* QueryLangV2
 
-    Query: (Term >)*
+    Query: Term (> Term)*
     Term: /[\w\d]+/
 
     */
 
-    private $_terms = array();
-
     public function parse()
     {
-        $this->match_Query();
-        return $this->_terms;
+        $result = $this->match_Query();
+        return $result['query'];
     }
 
-    public function Query_Term($result, $sub)
+    public function Query__construct(&$result)
     {
-        $this->_terms[] = $sub['text'];
+        $result['query'] = new \QueryLang\v2\Node\Query();
+    }
+
+    public function Query_Term(&$result, $sub)
+    {
+        $term = new \QueryLang\v2\Node\Term($sub['text']);
+        $result['query']->addTerm($term);
     }
 }

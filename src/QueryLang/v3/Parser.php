@@ -102,7 +102,7 @@ class Parser
         $token = $this->_lexer->nextToken();
         if ($token->getType() !== $tokenType) {
             throw new SyntaxException(
-                "Unexpected token at " . $this->getPos() . ", expecting: $tokenType"
+                "Unexpected token " . $token->getType() . " at " . $token->getPos() . ", expecting: $tokenType"
             );
         }
         return $token->getValue();

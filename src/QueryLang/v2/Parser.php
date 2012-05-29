@@ -4,38 +4,49 @@ namespace QueryLang\v2;
 
 class Parser
 {
-    private $_string;
+    private $_input;
 
     public function __construct($string)
     {
-        $this->_string = $string;
+        $this->_input = $string;
     }
 
     public function parse()
     {
-        // Match a term
-        $token = $this->_match('[\w\d]+');
-
-        // Anything left after matching?
-        if (!empty($this->_string)) {
-            throw new SyntaxException('Unrecognized input: ' . $this->_string);
-        }
-
-        return $token;
+        return $this->_query();
     }
 
-    protected function _match($regex)
+    protected function _query()
+    {
+        $query = new \QueryLang\v2\Node\Query();
+        $query->addTerm($this->_term());
+        while (preg_match('/\s+/', $this->_input[0])) {
+            $this->_accept('\s+');
+            $query->addTerm($this->_term());
+        }
+        return $query;
+    }
+
+    protected function _term()
+    {
+        $value = $this->_accept('[\w\d]+');
+        return new \QueryLang\v2\Node\Term($value);
+    }
+
+    protected function _accept($regex)
     {
         $matches = array();
-        $matched = preg_match("/^$regex/", $this->_string, $matches);
+        $matched = preg_match("/$regex/", $this->_input, $matches);
         if (!$matched) {
-            return '';
+            throw new SyntaxException(
+                "Token not found! Require token $regex in remaining input: {$this->_input}"
+            );
         }
-        $token = $matches[0];
+        $value = $matches[0];
 
-        // consume the token from the input
-        $this->_string = substr($this->_string, strlen($token));
+        // Remove the matched part from the input
+        $this->_input = substr($this->_input, strlen($value));
 
-        return $token;
+        return $value;
     }
 }

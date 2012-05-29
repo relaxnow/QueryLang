@@ -16,7 +16,8 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
         $expectedQuery = new \QueryLang\v3\Node\Query();
         $expectedQuery->addTerm(new \QueryLang\v3\Node\Term('parser'));
-        $this->assertEquals($expectedQuery, $query);
+
+        $this->assertEquals($expectedQuery, $query, 'parser can parse a single word');
     }
 
     public function testMultiTerm()
@@ -29,6 +30,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $expectedQuery->addTerm(new \QueryLang\v3\Node\Term('parser'));
         $expectedQuery->addTerm(new \QueryLang\v3\Node\Term('mult1'));
         $expectedQuery->addTerm(new \QueryLang\v3\Node\Term('word'));
+
         $this->assertEquals($expectedQuery, $query, 'Parser knows to parse multiple terms');
     }
 

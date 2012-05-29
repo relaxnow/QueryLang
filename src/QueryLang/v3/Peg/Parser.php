@@ -117,7 +117,7 @@ class Parser extends \Parser {
     }
 
 
-    /* Term: "(" Query ")" | /[\w\d]+/ */
+    /* Term: "(" Query ")" | Value:/[\w\d]+/ */
     protected $match_Term_typestack = array('Term');
     function match_Term ($stack = array()) {
     	$matchrule = "Term"; $result = $this->construct($matchrule, $matchrule, null);
@@ -149,10 +149,14 @@ class Parser extends \Parser {
     		if( $_23 === TRUE ) { $_26 = TRUE; break; }
     		$result = $res_19;
     		$this->pos = $pos_19;
+    		$stack[] = $result; $result = $this->construct( $matchrule, "Value" ); 
     		if (( $subres = $this->rx( '/[\w\d]+/' ) ) !== FALSE) {
     			$result["text"] .= $subres;
+    			$subres = $result; $result = array_pop($stack);
+    			$this->store( $result, $subres, 'Value' );
     			$_26 = TRUE; break;
     		}
+    		else { $result = array_pop($stack); }
     		$result = $res_19;
     		$this->pos = $pos_19;
     		$_26 = FALSE; break;
@@ -162,14 +166,6 @@ class Parser extends \Parser {
     	if( $_26 === FALSE) { return FALSE; }
     }
 
-
-
-
-    /**
-     * @var \QueryLang\v3\Node\Query
-     */
-    private $_query;
-
     public function parse()
     {
         $node = $this->match_Query();
@@ -178,64 +174,85 @@ class Parser extends \Parser {
 
     public function Query__construct(&$result)
     {
-        $result['query'] = new \QueryLang\v3\Node\Query();
-        var_dump(__METHOD__); var_dump(func_get_args());
+        $result['singular'] = true;
     }
 
     public function Query_OrQuery(&$result, $sub)
     {
-        var_dump(__METHOD__); var_dump(func_get_args());
-        $result['query']->addSubQuery($sub['query']);
+        if (isset($result['singular']) && isset($result['query'])) {
+            if ($result['term']) {
+                $result['query'] = new \QueryLang\v3\Node\Query();
+                $result['query']->add($result['term']);
+            }
+            $result['query']->add($sub['term']);
+            unset($result['singular']);
+        }
+        else if (isset($result['singular'])) {
+            if ($sub['term'] instanceof \QueryLang\v3\Node\Query) {
+                $result['query'] = $sub['term'];
+                $result['term'] = $sub['term'];
+            }
+            else {
+                $result['query'] = new \QueryLang\v3\Node\Query();
+                $result['query']->add($sub['term']);
+            }
+        }
+        else {
+            $result['query']->add($sub['term']);
+        }
     }
 
     public function OrQuery__construct(&$result)
     {
-        $result['query'] = new \QueryLang\v3\Node\Query();
-        var_dump(__METHOD__); var_dump(func_get_args());
+        $result['singular'] = true;
     }
 
     public function OrQuery_AndQuery(&$result, $sub)
     {
-        if (isset($sub['query'])) {
-            $result['query']->addSubQuery($sub['query']);
+        if (isset($result['singular']) && isset($result['term'])) {
+            $query = new \QueryLang\v3\Node\Query('OR');
+            $query->add($result['term']);
+            $query->add($sub['term']);
+            $result['term'] = $query;
+            unset($result['singular']);
         }
-        else if (isset($sub['firstTerm'])) {
-            $result['query']->addTerm($sub['firstTerm']);
-            unset($sub['firstTerm']);
+        else if (isset($result['singular'])) {
+            $result['term'] = $sub['term'];
         }
-        var_dump(__METHOD__); var_dump(func_get_args());
+        else {
+            $result['term']->add($sub['term']);
+        }
+    }
+
+    public function AndQuery__construct(&$result)
+    {
+        $result['singular'] = true;
     }
 
     public function AndQuery_Term(&$result, $sub)
     {
-        $term = new \QueryLang\v3\Node\Term($sub['text']);
-        if (isset($result['query'])) {
-            $result['query']->addTerm($term);
-        }
-        // Second term, we can be sure this is a subquery now, so create it...
-        else if (isset($result['firstTerm'])) {
+        if (isset($result['singular']) && isset($result['term'])) {
             $query = new \QueryLang\v3\Node\Query('AND');
-            $query->addTerm($result['firstTerm']);
-            $query->addTerm($term);
-            $result['query'] = $query;
+            $query->add($result['term']);
+            $query->add($sub['term']);
+            $result['term'] = $query;
+            unset($result['singular']);
         }
-        // May contain a subquery
-        else if (isset($sub['query'])) {
-            $query = new \QueryLang\v3\Node\Query('AND');
-            $query->addSubQuery($sub['query']);
-            $result['query'];
+        else if (isset($result['singular'])) {
+            $result['term'] = $sub['term'];
         }
-        // May just be a single term...
         else {
-            $result['firstTerm'] = $term;
+            $result['term']->add($sub['term']);
         }
-
-        var_dump(__METHOD__); var_dump(func_get_args());
     }
 
     public function Term_Query(&$result, $sub)
     {
-        $result['query'] = $sub['query'];
-        var_dump(__METHOD__); var_dump(func_get_args());
+        $result['term'] = $sub['query'];
+    }
+
+    public function Term_Value(&$result, $sub)
+    {
+        $result['term'] = new \QueryLang\v3\Node\Term($sub['text']);
     }
 }

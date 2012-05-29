@@ -41,7 +41,7 @@ class Lexer
             if ($this->_match('OR'          , '/^(OR)/i')) {continue;}
             if ($this->_match('AND'         , '/^(AND)/i')) {continue;}
             if ($this->_match('TermValue'   , '/^([\w\d]+)/i')) {continue;}
-            if ($this->_match('WS'          , '/^\s+/i', true)) {continue;}
+            if ($this->_match('WS'          , '/^\s+/', true)) {continue;}
 
             throw new SyntaxException(
                 "Unrecognized character in input stream: '{$this->_input[0]}' at position " . $this->_pos
