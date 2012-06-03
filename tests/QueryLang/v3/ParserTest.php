@@ -14,6 +14,9 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $parser = new $parserClass('parser');
         $query = $parser->parse();
 
+        $queryOptimizer = new \QueryLang\v3\Optimizer($query);
+        $query = $queryOptimizer->optimize();
+
         $expectedQuery = new \QueryLang\v3\Node\Query();
         $expectedQuery->addTerm(new \QueryLang\v3\Node\Term('parser'));
 
@@ -25,6 +28,9 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $parserClass = static::PARSER_CLASS;
         $parser = new $parserClass('parser OR mult1 OR word');
         $query = $parser->parse();
+
+        $queryOptimizer = new \QueryLang\v3\Optimizer($query);
+        $query = $queryOptimizer->optimize();
 
         $expectedQuery = new \QueryLang\v3\Node\Query();
         $expectedQuery->addTerm(new \QueryLang\v3\Node\Term('parser'));
@@ -43,9 +49,13 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
         $parser = new $parserClass($implicitPrecedenceQuery);
         $query = $parser->parse();
+        $queryOptimizer = new \QueryLang\v3\Optimizer($query);
+        $query = $queryOptimizer->optimize();
 
         $parser = new $parserClass($explicitPrecedenceQuery);
         $expectedQuery = $parser->parse();
+        $queryOptimizer = new \QueryLang\v3\Optimizer($expectedQuery);
+        $expectedQuery = $queryOptimizer->optimize();
 
         $this->assertEquals($expectedQuery, $query, $implicitPrecedenceQuery . '===' . $explicitPrecedenceQuery);
 
@@ -54,9 +64,13 @@ class ParserTest extends \PHPUnit_Framework_TestCase
 
         $parser = new $parserClass($implicitPrecedenceQuery);
         $query = $parser->parse();
+        $queryOptimizer = new \QueryLang\v3\Optimizer($query);
+        $query = $queryOptimizer->optimize();
 
         $parser = new $parserClass($explicitPrecedenceQuery);
         $expectedQuery = $parser->parse();
+        $queryOptimizer = new \QueryLang\v3\Optimizer($expectedQuery);
+        $expectedQuery = $queryOptimizer->optimize();
 
         $this->assertEquals($expectedQuery, $query, $implicitPrecedenceQuery . '===' . $explicitPrecedenceQuery);
     }
