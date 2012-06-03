@@ -1,4 +1,6 @@
+*.rtf
+
 autoload.php
 composer.lock
 composer.phar
-bin
+cli.php
