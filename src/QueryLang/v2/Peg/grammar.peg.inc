@@ -2,6 +2,8 @@
 
 namespace QueryLang\v2\Peg;
 
+use \QueryLang\v2\Node as Node;
+
 require_once __DIR__ . '/../../../../vendor/hafriedlander/php-peg/Parser.php';
 
 class Parser extends \Parser {
@@ -20,12 +22,12 @@ class Parser extends \Parser {
 
     public function Query__construct(&$result)
     {
-        $result['query'] = new \QueryLang\v2\Node\Query();
+        $result['query'] = new Node\Query();
     }
 
     public function Query_Term(&$result, $sub)
     {
-        $term = new \QueryLang\v2\Node\Term($sub['text']);
+        $term = new Node\Term($sub['text']);
         $result['query']->addTerm($term);
     }
 }

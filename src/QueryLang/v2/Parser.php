@@ -2,6 +2,8 @@
 
 namespace QueryLang\v2;
 
+use \QueryLang\v2\Node as Node;
+
 class Parser
 {
     private $_input;
@@ -18,7 +20,7 @@ class Parser
 
     protected function _query()
     {
-        $query = new \QueryLang\v2\Node\Query();
+        $query = new Node\Query();
         $query->addTerm($this->_term());
         while ($this->_predict('\s+')) {
             $this->_accept('\s+');
@@ -30,7 +32,7 @@ class Parser
     protected function _term()
     {
         $value = $this->_accept('[\w\d]+');
-        return new \QueryLang\v2\Node\Term($value);
+        return new Node\Term($value);
     }
 
     protected function _accept($regex)
