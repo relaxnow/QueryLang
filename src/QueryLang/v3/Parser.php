@@ -12,34 +12,31 @@ use \QueryLang\v3\Node as Node;
  */
 class Parser
 {
-    protected $_lexer;
+    protected $_tokenStream;
 
-    public function __construct($string)
+    public function __construct($input)
     {
-        $this->_lexer = new Lexer($string);
+        $lexer = new Lexer($input);
+        $this->_tokenStream = $lexer->lex();
     }
 
     public function parse()
     {
-        $this->_lexer->lex();
+        $query = $this->_query();
 
-        return $this->_query();
+        $this->_tokenStream->expect('EOS');
+        return $query;
     }
 
     protected function _query()
-    {
-        return $this->_orQuery();
-    }
-
-    protected function _orQuery()
     {
         $query = new Node\Query('OR');
 
         $leftTerm = $this->_andQuery();
         $query->add($leftTerm);
 
-        while ($this->_predict()->getType() === 'OR') {
-            $this->_accept('OR');
+        while ($this->_tokenStream->look()->getType() === 'OR') {
+            $this->_tokenStream->expect('OR');
             $rightTerm = $this->_andQuery();
             $query->add($rightTerm);
         }
@@ -54,8 +51,8 @@ class Parser
         $leftTerm = $this->_term();
         $query->add($leftTerm);
 
-        while ($this->_predict()->getType() === 'AND') {
-            $this->_accept('AND');
+        while ($this->_tokenStream->look()->getType() === 'AND') {
+            $this->_tokenStream->expect('AND');
             $rightTerm = $this->_term();
             $query->add($rightTerm);
         }
@@ -65,38 +62,22 @@ class Parser
 
     protected function _term()
     {
-        $nextTokenType = $this->_predict()->getType();
+        $nextTokenType = $this->_tokenStream->look()->getType();
         if ($nextTokenType === 'LeftParen') {
-            $this->_accept('LeftParen');
+            $this->_tokenStream->expect('LeftParen');
             $query = $this->_query();
-            $this->_accept('RightParen');
+            $this->_tokenStream->expect('RightParen');
 
             return $query;
         }
         else if ($nextTokenType === 'TermValue') {
-            $termValue = $this->_accept('TermValue');
-            return new Node\Term($termValue);
+            $termValue = $this->_tokenStream->expect('TermValue');
+            return new Node\Term($termValue->getValue());
         }
         else {
             throw new SyntaxException(
                 "Unexpected token '{$nextTokenType}', expecting a term or a subquery!"
             );
         }
-    }
-
-    protected function _predict()
-    {
-        return $this->_lexer->lookAhead();
-    }
-
-    protected function _accept($tokenType)
-    {
-        $token = $this->_lexer->nextToken();
-        if ($token->getType() !== $tokenType) {
-            throw new SyntaxException(
-                "Unexpected token " . $token->getType() . " at " . $token->getPos() . ", expecting: $tokenType"
-            );
-        }
-        return $token->getValue();
     }
 }

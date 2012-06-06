@@ -6,7 +6,7 @@ class Lexer
 {
     private $_input;
     private $_pos = 0;
-    private $_tokens;
+    private $_tokens = array();
 
     /**
      * @param string $input
@@ -14,23 +14,6 @@ class Lexer
     public function __construct($input)
     {
         $this->_input = $input;
-    }
-
-    /**
-     * @param int $pos
-     * @return Token
-     */
-    public function lookAhead($pos = 0)
-    {
-        return $this->_tokens[$pos];
-    }
-
-    /**
-     * @return Token
-     */
-    public function nextToken()
-    {
-        return array_shift($this->_tokens);
     }
 
     public function lex()
@@ -48,6 +31,7 @@ class Lexer
             );
         }
         $this->_tokens[] = new Token('EOS', '', $this->_pos);
+        return new TokenStream($this->_tokens);
     }
 
     protected function _match($type, $regex, $skip = false)
